@@ -1,0 +1,13 @@
+@memory instructions_rom
+
+@00
+3E 0F
+06 BB
+0E CC
+16 DD
+42
+E6 FF
+C3 10 00
+
+@1000
+E6 33
