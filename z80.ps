@@ -912,6 +912,55 @@
   } ifelse
   grestore
 } def
+% ...and now for something completely different...
+%
+% Tofu
+% 
+% Ingredients (Japanese names in parentheses): 
+% 
+%      500g Soy Beans (Daizu) 
+%      20g Bittern (Nigari) 
+% 
+% You will also need: 
+% 
+%      Cheesecloth 
+%      Molds (milk cartons work fine) 
+%      Press (rolled up newspaper wrapped in plastic wrap) 
+%      Weights (plates, etc.) 
+%      Cooking thermometer 
+% 
+% Soak the soy beans in water overnight (10-20 hours). Be sure to
+% use enough water so the beans can double in size. Prepare the molds
+% using one milk carton per mold (you can use cheese molds if you have
+% them). Cut off one side of the carton, and punch numerous holes in the
+% sides and bottom to allow liquid to escape. Reinforce the molds by
+% using a pair of longs sticks (one on each side) holding them together
+% with rubber bands on the ends. You should have one piece of
+% cheesecloth per mold which should be big enough to fit squarely into
+% the mold and cover the tofu inside.
+% 
+% The next day, pour out the water, and pulverize the beans in a blender
+% using enough water to cover the beans (you will probably need to do
+% this in four to five batches). Pour the bean mixture into a very large
+% pot and add enough water to double the quantity of liquid. Bring the
+% liquid to a low boil and lower the temperature, skimming off any foam
+% that collects on the top. Boil for 20-30 min. stiring (and skimming)
+% constently. While it is boiling, disolve the bittern (the leftover
+% "stuff" that is formed when you extract salt from seawater) in a small
+% quantity of water. Place a piece of cheesecloth in a colander, and
+% pour the liquid through it into a large bowel. The liquid that passes
+% through is called "soy milk" and will become the tofu. The solid
+% material that remains in the cheesecloth is called "okara" and is
+% useful for various Japanese dishes (recipes will come later). For each
+% of the molds, fit the cheesecloth squarely into the corners. When the
+% temperature of the soy milk cools to 70C (158F) pour in the bittern
+% and stir genetly. When the tofu starts to separate from the water
+% (almost immediately), pour the mixture into the molds and cover with
+% cheesecloth. Next, place the plastic wrap covered newspapers on top of
+% the tofu (it should fit squarely) and place weights on top to press
+% out the liquid. After about 30 min., remove the tofu from the
+% molds. This should be done under water in a large pot or tub. Store
+% the tofu submerged in water.
 %
 % An OR gate
 %
@@ -1697,6 +1746,23 @@ gsave
 0.619060 0.619060 scale
 1 -1 scale
 1904.153511 1720.820105 translate
+newpath
+-1108 -1254 moveto
+-1108 -1174 lineto
+-1698 -1174 lineto
+-1698 -671 lineto
+-1707 -671 lineto
+stroke
+newpath
+-1110 -1256 moveto
+-1131 -1256 lineto
+stroke
+newpath
+-1106 -1256 moveto
+-1087 -1256 lineto
+-1087 -1254 lineto
+-1084 -1254 lineto
+stroke
 2 setlinewidth
 newpath
 -1678 -1262 moveto
@@ -2045,12 +2111,6 @@ newpath
 stroke
 1 setlinewidth
 newpath
--1119 -1256 moveto
--1089 -1256 lineto
--1089 -1254 lineto
--1084 -1254 lineto
-stroke
-newpath
 264 -806 moveto
 264 -480 lineto
 stroke
@@ -2215,9 +2275,9 @@ newpath
 -1014 -1178 lineto
 stroke
 newpath
--1119 -1251 moveto
--1104 -1251 lineto
--1104 -1195 lineto
+-1131 -1251 moveto
+-1116 -1251 lineto
+-1116 -1195 lineto
 -1041 -1195 lineto
 -1041 -1180 lineto
 stroke
@@ -2613,24 +2673,13 @@ newpath
 1066 -760 lineto
 stroke
 newpath
--1147 -1254 moveto
--1172 -1254 lineto
+-1172 -1254 moveto
+-1152 -1254 lineto
 stroke
 newpath
--1145 -1256 moveto
--1145 -1345 lineto
--1655 -1345 lineto
-stroke
-newpath
--1143 -1254 moveto
--1140 -1254 lineto
-stroke
-newpath
--1707 -671 moveto
--1697 -671 lineto
--1697 -1178 lineto
--1145 -1178 lineto
--1145 -1252 lineto
+-1655 -1345 moveto
+-1108 -1345 lineto
+-1108 -1258 lineto
 stroke
 newpath
 -137 -301 moveto
@@ -3815,6 +3864,8 @@ false -709 -919 0 psjkff
 -918 -740 -90 psor
 gsave -926 -730 -928 -730 moveto lineto stroke grestore
 gsave -910 -730 -907 -730 moveto lineto stroke grestore
+(AB_to_PC) /R /L -1205 -1234 pjshow
+true -1188 -1249 0 psjkff
 2 92 -187 -180 mux
 -1506 -1256 0 psvdd
 (AND_DB_DB) /R /L -473 -919 pjshow
@@ -4068,7 +4119,7 @@ gsave -1060 -552 -1055 -552 moveto lineto stroke grestore
 2 -1678 -1345 0 mux
 -966 -768 0 joint
 2 1632 124 -180 mux
--1130 -1254 -180 psand
+-1142 -1254 -180 psand
 331 -1281 -180 psground
 (7:0) -1715 -164 0 pstap
 41 67 85 557 -1003 psframe
@@ -4088,7 +4139,7 @@ gsave -1060 -552 -1055 -552 moveto lineto stroke grestore
 2 498 -1050 0 mux
 148 -856 0 psor
 -1613 -1293 -90 psground
-true -1188 -1249 0 psjkff
+-1108 -1256 0 joint
 94 -725 0 joint
 -832 -768 0 joint
 /Helvetica-Latin1 findfont 8 scalefont setfont
@@ -4119,8 +4170,9 @@ false -582 -825 0 psjkff
 /Helvetica-Latin1 findfont 12 scalefont setfont
 (Overflow) /L /L 1640 -322 pjshow
 116 -1324 0 psor
--1145 -1254 0 joint
 /Helvetica-Latin1 findfont 8 scalefont setfont
+(read_address) /R /L -1085 -1234 pjshow
+true -1068 -1249 0 psjkff
 (ADDRESS_BUS) /C /L -1678 -1295 pjshow
 -1678 -1298 0 register
 -1188 -1220 0 joint
@@ -4180,7 +4232,6 @@ gsave 138 -512 138 -509 moveto lineto stroke grestore
 -1693 -183 0 joint
 2 171 -1396 0 mux
 -800 -868 -90 psor
-true -1068 -1249 0 psjkff
 2 182 -229 0 mux
 -938 -924 0 joint
 274 -712 0 joint

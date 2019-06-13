@@ -1,0 +1,1991 @@
+%!PS-Adobe-3.0
+%%Title: z80.v
+%%DocumentNeededResources: font Courier Courier-Bold Courier-Italic Courier-BoldItalic Helvetica Helvetica-Bold Helvetica-Oblique Helvetica-BoldOblique Times-Roman Times-Bold Times-Italic Times-BoldItalic Symbol Symbol Symbol Symbol
+%%Creator: Pawel,,, and TKGate 2.0.0
+%%CreationDate: 13 June 2019
+%%DocumentPaperSizes: A1
+%%Pages: 1
+%%Orientation: Landscape
+%%EndComments
+%
+% Copyright (C) 1987-2015 by Jeffery P. Hansen
+%    This program (the Postscript Prolog) is free software; you can redistribute
+%    it and/or modify it under the terms of the GNU General Public License
+%    as published by the Free Software Foundation; either version 2 of the
+%    License, or (at your option) any later version.
+%
+%    This program is distributed in the hope that it will be useful,
+%    but WITHOUT ANY WARRANTY; without even the implied warranty of
+%    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%    GNU General Public License for more details.
+%
+%    You should have received a copy of the GNU General Public License along
+%    with this program; if not, write to the Free Software Foundation, Inc.,
+%    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+%
+
+/isTrace false def
+/LogoWidth 60 def
+/PBsize 60 def
+
+%
+% /key font defLatin1
+%
+% Define key as a latin-1 version of font 
+%
+/defLatin1 {
+  dup length dict begin
+    {1 index /FID ne {def} {pop pop} ifelse} forall
+    /Encoding ISOLatin1Encoding def
+    currentdict
+  end
+  definefont pop
+} def
+
+% Calculate the height of an equalateral triangle with the given sides.
+/theight {
+	2 div
+	3 sqrt
+	mul
+} bind def
+%
+% Genaral parameters to start a gate.
+%
+% x y r startgate
+%
+/startgate {
+	gsave
+	1 setlinewidth
+	3 1 roll
+	translate
+	rotate
+	1 -1 scale
+	newpath
+} bind def
+%
+% x y r startnorotgate
+%
+/startnorotgate {
+  pop 0 startgate
+} def
+%
+% Genaral parameters to start a gate (with position adjustment)
+%
+% x y r [[][][][]] startgate
+%
+/adjstartgate {
+  gsave
+  1 setlinewidth
+  1 index 90 div neg cvi get {} forall	% x y r dx dy
+  exch 5 -1 roll add exch 4 -1 roll add
+  translate
+  rotate
+  1 -1 scale
+  newpath
+} bind def
+%
+% x y r adjstartnorotgate
+%
+/adjstartnorotgate {
+  exch pop 0 exch adjstartgate
+} def
+%
+% Wire
+/wire {
+	gsave
+	10 div
+	setlinewidth
+	newpath
+	moveto lineto
+	stroke
+	grestore
+} bind def
+%
+% (l) j x y wirelabel
+%
+% BetweenLeftAndRight 0x1
+% AtRight 0x2
+% AtLeft 0x4
+% BetweenTopAndBottom 0x8
+% AtBaseline 0x10
+% AtTop 0x20
+% AtBottom 0x40
+%
+/wirelabel {
+  gsave
+  translate
+  8 rfont
+  3 dict begin
+
+  /just exch def
+  /dx 0 def
+  /dy 0 def
+
+  just 64 and 0 ne {  %AtBottom
+    /dy -3 def  } if
+  just 32 and 0 ne {  %AtTop
+    /dy 8 def  } if
+  just 8 and 0 ne {  %BetweenTopAndBottom
+    /dy 4 def  } if
+
+  just 4 and 0 ne {  % AtLeft
+    0 dy LJ
+  } if
+  just 2 and 0 ne {  % AtRight
+    0 dy RJ
+  } if
+  just 1 and 0 ne {  % BetweenLeftAndRight
+    0 dy CT
+  } if
+  end
+  grestore
+} def
+%
+% x y sizesymbol
+%
+/sizesymbol {
+  gsave
+  translate
+  1 setlinewidth
+  -5 5 5 -5 line
+  grestore
+} def
+%
+% x1 y1 x2 y2 s wiresizenote
+%
+/wiresizenote {
+    gsave
+    8 rfont
+    5 1 roll              % s x1 y1 x2 y2
+    dup                   % s x1 y1 x2 y2 y2
+    3 index               % s x1 y1 x2 y2 y2 y1
+    eq 5 1 roll           % s t x1 y1 x2 y2
+    3 -1 roll add 2 div   % s t x1 x2 y'
+    3 1 roll add 2 div    % s t y' x'
+    exch translate        % s t
+    newpath -4 -4 moveto
+    4 4 lineto stroke
+    { 0 -7 CT } { 7 3 LJ } ifelse
+    grestore
+} bind def
+%
+% An inverter bubble
+/inverter {
+   0 startgate
+   1 setgray
+   0 0 2 0 360 arc fill
+   0 setgray
+   0 0 2 0 360 arc stroke
+   grestore
+} bind def
+%
+% x y r arrow
+%
+/arrow {
+    gsave
+    3 1 roll
+    translate
+    1 -1 scale
+    90 mul rotate
+    newpath
+    -2 -.5 moveto 1 -.5 lineto 1 -2.5 lineto
+    4 0 lineto 1 2.5 lineto 1 .5 lineto -2 .5 lineto closepath
+    fill
+    grestore
+} def
+%
+% x y r tri
+%
+/tri {
+    gsave
+    3 1 roll
+    translate
+    90 mul rotate
+    newpath
+    -5 0 moveto -1 -2.5 lineto -1 -.5 lineto 1 -.5 lineto
+    1 -2.5 lineto 5 0 lineto 1 2.5 lineto 1 .5 lineto
+    -1 .5 lineto -1 2.5 lineto closepath
+    fill
+    grestore
+} def
+%
+% Arrow head for ends of wires
+/arrowhead {
+	startgate
+	0.5 setlinewidth
+	newpath
+	-2 -1.5 moveto
+	0 0 lineto
+	-2 1.5 lineto
+	stroke
+	grestore
+} bind def
+%
+% w h pbox
+%
+/pbox {
+  newpath
+  2 copy 2 copy
+  0 0 moveto
+  exch pop 0 exch lineto
+  lineto
+  pop 0 lineto
+  closepath
+} bind def
+%
+% x y w h box
+%
+/box {
+  gsave
+  1 add exch 1 add exch
+  4 2 roll
+  translate
+  -.5 -.5 translate
+  pbox stroke
+  grestore
+} bind def
+
+%
+% x y w h bold_box
+%
+/bold_box {
+  gsave
+  2 setlinewidth
+  4 2 roll
+  translate
+  pbox stroke
+  grestore
+} def
+
+%
+% x1 y2 x2 y2 line
+%
+/line {
+  moveto lineto stroke
+} def
+
+%
+% x1 y2 x2 y2 gline
+%
+/gline {
+  gsave
+  0.5 setgray
+  moveto lineto stroke
+  grestore
+} def
+
+%
+%
+/ds {
+	gsave
+	translate
+	newpath
+	0 0 moveto
+	3 0 lineto
+	3 11 lineto
+	0 11 lineto
+	closepath stroke
+	0 2 moveto 3 2 lineto stroke
+	0 9 moveto 3 9 lineto stroke
+	0 5 moveto
+	3 5 lineto
+	3 6 lineto
+	0 6 lineto
+	closepath fill
+	grestore
+} def
+%
+% x y () hsize
+%
+/hsize {
+	gsave
+	3 1 roll
+	translate
+	6 rfont
+	0 -5 CT
+	newpath
+	0.5 setlinewidth
+	3 -3 moveto -3 3 lineto stroke
+	grestore
+} def
+%
+% x y () hsize
+%
+/vsize {
+	gsave
+	3 1 roll
+	translate
+	6 rfont 
+	5 2 LJ
+	newpath
+	0.5 setlinewidth
+	3 -3 moveto -3 3 lineto stroke
+	grestore
+} def
+%
+% a b max
+%
+/max {
+	2 copy
+	le {exch pop} {pop} ifelse
+} def
+%
+%
+/longestwidth {
+	exch stringwidth pop exch
+	1 sub
+	{exch stringwidth pop max} repeat
+} def
+%
+%
+% Gate Logo (by Miles Bader)
+%
+/size 10 def
+
+/2dup {
+	1 index 1 index
+} def
+
+/gatelogo {
+  gsave
+  translate
+  0 12 translate		% Make space for label
+
+  .45 .45 scale
+  5 size mul neg 0 translate
+
+  0 0 post
+  8 size mul 0 post
+
+  1 setlinewidth
+  0 setgray
+
+  size 2 mul			% 2s
+  dup 4 mul			% 2s 8s
+  2dup				% 2s 8s 2s 8s  
+  size				% 2s 8s 2s 8s s
+  3 1 roll			% 2s 8s s 2s 8s
+  {
+    newpath
+    dup 2 index exch moveto
+    2 index exch lineto
+    stroke
+  } for
+
+  pop pop
+
+  size dup 2.5 mul exch 8.5 mul spikedraw
+  size dup 3.5 mul exch 9.25 mul spikedraw
+  size dup 4.5 mul exch 9.5 mul spikedraw
+
+  newpath
+  size dup 5 mul exch 9 mul 1 index exch moveto
+  0 lineto
+  1 setlinewidth
+  1 setgray
+  stroke
+
+  size dup 5.5 mul exch 9.5 mul spikedraw
+  size dup 6.5 mul exch 9.25 mul spikedraw
+  size dup 7.5 mul exch 8.5 mul spikedraw
+
+  1.5 size mul ifont
+  GateVersion 5 size mul -18 showCentered
+
+  grestore
+} def
+
+/spikedraw {
+	0 setgray
+
+	newpath				% x y
+	2dup moveto			% x y
+	2dup size 2 div 250 290 arc	% x y
+	closepath
+	fill
+
+	newpath
+	2dup size 2 div sub moveto	% x y
+	pop size 2 div lineto		% x y
+	1 setlinewidth
+	stroke
+} def
+
+%
+% Centered show text.
+% (TEXT) x y showCentered
+/showCentered {
+	gsave
+	3 -1 roll
+	dup
+	stringwidth
+	pop 2 div neg 0 translate
+	3 1 roll
+	moveto
+	show
+	grestore
+} def
+
+/post {
+  gsave
+  translate
+
+  newpath
+  0 0 moveto
+  size 2 mul 0 lineto
+  size dup 3.5 mul 4.12 size mul 75.96 104.04 arc
+  closepath
+  gsave 0 setgray 2 setlinewidth stroke grestore
+%	1 setgray fill
+
+  size .66 mul size moveto
+  0 6 size mul rlineto
+  size 1.33 mul size moveto
+  0 6 size mul rlineto
+  0 setgray 0.5 setlinewidth stroke
+
+  newpath
+  size .8	mul					% .8s
+  4.12 3.5 add					% .8s 7.72
+  size mul 1 index add				% .8s 8.52s
+  size exch					% .8s s 8.52s
+  3 -1 roll 0 360 arc
+  gsave 0 setgray 2 setlinewidth stroke grestore
+  .95 setgray fill
+
+  grestore
+} def
+
+
+%
+%  Draw the page box
+%
+% t/f pagebox
+%
+/pagebox {
+  gsave
+
+  %
+  % Draw main frame
+  %
+  1 setlinewidth
+  {
+    newpath
+    LMargin BMargin moveto
+    PageWidth RMargin sub	BMargin	lineto
+    PageWidth RMargin sub PageHeight TMargin sub lineto
+    LMargin PageHeight TMargin sub lineto
+    closepath
+    stroke
+  } {
+    newpath
+    LMargin BMargin moveto
+    PageWidth RMargin sub BMargin lineto
+    PageWidth RMargin sub BMargin LBlock add lineto
+    LMargin BMargin LBlock add lineto
+    closepath
+    stroke
+  } ifelse
+
+  10 dict begin
+    /X1 LMargin def
+    /X2 PageWidth RMargin sub def
+    /X3 PageWidth RMargin sub LogoWidth sub def
+    /XM X1 X3 add 2 div def
+    /Y0 BMargin LBlock add def
+    /Y1 BMargin LBlock 2 mul 3 div add def
+    /Y2 BMargin LBlock 3 div add def
+    /Y3 BMargin def
+
+
+    X1 Y0 moveto  X2 Y0 lineto stroke
+    X1 Y1 moveto  X3 Y1 lineto stroke
+    X1 Y2 moveto  X3 Y2 lineto stroke
+
+    /x1delta 10 def
+    /x2delta 0 def
+    /ydelta 5 def
+
+    12 bfont 
+    X1 x1delta add Y1 ydelta add moveto (Designer:) show
+    X1 x1delta add Y2 ydelta add moveto (Site:) show
+    X1 x1delta add Y3 ydelta add moveto (Date:) show
+
+    XM x2delta add Y1 ydelta add moveto (Document:) show
+    XM x2delta add Y2 ydelta add moveto (Page:) show
+    isTrace {
+      XM x2delta add Y3 ydelta add moveto (Interval:) show
+    } {
+      XM x2delta add Y3 ydelta add moveto (Module:) show
+    } ifelse
+
+    /x1delta 15 (Designer:) stringwidth pop add def
+    /x2delta 5 (Document:) stringwidth pop add def
+
+    12 rfont
+    X1 x1delta add Y1 ydelta add moveto Author show
+    X1 x1delta add Y2 ydelta add moveto Site show
+    X1 x1delta add Y3 ydelta add moveto Date show
+
+    XM x2delta add Y1 ydelta add moveto CircuitName show
+    XM x2delta add Y2 ydelta add moveto PageNumber show
+    XM x2delta add Y3 ydelta add moveto ModuleNames show
+  end
+
+  %
+  % Draw logo
+  %
+  PageWidth RMargin sub LogoWidth sub BMargin moveto
+  0 LBlock rlineto stroke
+  PageWidth RMargin sub LogoWidth 2 div sub BMargin gatelogo
+
+  grestore
+} bind def
+
+%
+% () x y pshow
+%
+/pshow {
+	gsave
+	translate
+	1 -1 scale
+	(_) anchorsearch {
+	    newpath 0 0 moveto
+	    pop dup true charpath pathbbox
+	    0.5 setlinewidth
+	    newpath dup 3 1 roll 2 add moveto exch pop 2 add lineto stroke
+	} if
+	0 0 moveto show
+	grestore
+} def
+%
+% () hj vj x y pjshow 
+%
+/pjshow {
+  gsave
+  translate
+  3 dict begin
+    2 index stringwidth pop /W exch def
+    /S currentfont /ScaleMatrix get 0 get def
+    currentfont /FontBBox get cvx exec
+    /A exch S mul 1000 div def pop /D exch S mul 1000 div def pop
+
+    dup /C eq {
+      0 A D add 2 div translate
+    } if
+    dup /T eq {
+      0 A translate
+    } if
+    dup /B eq {
+      0 D translate
+    } if
+    pop
+
+    dup /C eq {
+      W 2 div neg 0 translate
+    } if
+    dup /R eq {
+      W neg 0 translate
+    } if
+    pop
+  end
+  0 0 pshow
+  grestore
+} def
+
+%
+% () x y pshow
+%
+/prshow {
+	gsave
+	translate
+	(_) anchorsearch {
+	    newpath 0 0 moveto
+	    pop dup true charpath pathbbox
+	    0.5 setlinewidth
+	    newpath dup 3 1 roll 2 add moveto exch pop 2 add lineto stroke
+	} if
+	0 0 moveto show
+	grestore
+} def
+
+%
+% Show a value in a trace.  Do not display if width is greater than wmax
+%
+% () x y wmax trshow
+%
+/trshow {
+  gsave
+  3 1 roll translate
+  1 index stringwidth pop lt {
+    pop
+  } {
+    0 0 prshow
+  } ifelse
+  grestore
+} def
+
+
+%
+% Centered show text.
+% (TEXT) x y CT
+/CT {
+	gsave
+	3 -1 roll
+	dup
+	stringwidth
+	pop 2 div neg 0 translate
+	3 1 roll
+	pshow
+	grestore
+} bind def
+%
+% Centered show text (reversed).
+% (TEXT) x y rCT
+/rCT {
+  gsave
+  translate      
+  1 -1 scale
+  dup
+  stringwidth
+  pop 2 div neg 0 translate
+  0 0 pshow
+  grestore
+} bind def
+%
+% Left Justified show text
+% (TEXT) x y LJ
+/LJ {
+	pshow
+} bind def
+%
+% Right Justified show text.
+% (TEXT) x y RJ
+/RJ {
+	gsave
+	3 -1 roll
+	dup
+	stringwidth
+	pop neg 0 translate
+	3 1 roll
+	pshow
+	grestore
+} bind def
+
+%
+% begin a trace
+%
+% x y w h BT
+%
+/BT {
+  gsave
+  newpath
+  4 2 roll moveto
+  dup 0 exch rlineto
+  exch 0 rlineto
+  neg 0 exch rlineto
+  closepath
+  clip
+  newpath
+} def
+
+%
+% end a trace
+%
+/ET {
+  grestore
+} def
+
+%
+% Begin page
+%
+% (n of n) (mod) BP
+%
+/BP {
+  /ModuleNames exch def
+  gsave
+  IsLandscape { makeLandscape } if
+
+  isepsf {
+    pop
+  } {
+    /PageNumber exch def
+    isTrace not pagebox
+    LMargin BMargin LBlock add translate
+  } ifelse
+} def
+%
+
+% Begin a quandrent page
+%
+% r c nr nc (n of n) (mod) BP_P
+%
+/BP_P {
+  BP
+  PageWidth LMargin sub RMargin sub LogoWidth sub PBsize sub LBlock neg PartBox
+} def
+
+% Begin a scope trace page
+%
+% (n of n) (n-m) BP_T
+/BP_T {
+  /isTrace true def
+  BP
+} def
+
+%
+% End page
+%
+% EP
+%
+/EP { grestore showpage } def
+%
+% Begin module
+%
+% () x y w h BM
+%
+/BM {
+  gsave
+  4 2 roll translate
+
+  newpath
+  0 0 moveto
+  exch dup 0 lineto
+  exch 2 copy lineto
+  exch pop 0 exch lineto
+  closepath
+  clip
+  newpath
+
+  10 rfont
+  5 5 moveto show
+
+} def
+
+%
+% x y w h
+%
+/corners {
+  gsave
+  4 2 roll	% w h x y
+
+  newpath
+  2 copy 5 add moveto 0 -5 rlineto 5 0 rlineto stroke
+  2 copy 4 index add 5 sub moveto 0 5 rlineto 5 0 rlineto stroke
+  2 copy 4 index add exch 5 index add exch 5 sub moveto 0 5 rlineto -5 0 rlineto stroke
+  exch 3 index add 5 sub exch moveto 5 0 rlineto 0 5 rlineto stroke  
+  pop pop
+
+  grestore
+} def
+
+%
+% Begin module with corners
+%
+% () x y w h BM
+%
+/BM_C {
+  4 copy corners
+  BM
+} def
+
+%
+% x y w h
+%
+/PBox {
+  newpath
+  4 2 roll moveto
+  1 index 0 rlineto
+  neg 0 exch rlineto
+  neg 0 rlineto
+  closepath
+} def
+
+%
+% r c nr nc x y
+%
+/PartBox {
+  gsave
+  translate
+  6 dict begin
+    /nc exch def
+    /nr exch def
+    /c exch def
+    /r exch def
+    /boxW PBsize nc div def 
+    /boxH PBsize nr div def 
+
+    0 1 nc 1 sub {
+      0 1 nr 1 sub {
+        2 copy r eq exch c eq and {
+	   2 copy
+	   boxH mul PBsize exch sub exch boxW mul exch  
+           boxW boxH PBox gsave fill grestore stroke
+	} {
+           2 copy
+	   boxH mul PBsize exch sub exch boxW mul exch  
+           boxW boxH PBox gsave 1 setgray fill grestore stroke
+	} ifelse
+        pop
+      } for
+      pop
+    } for
+  end
+  grestore
+} def
+
+%
+% End module
+%
+% EM
+/EM { grestore } def
+
+%
+% makeLandscape
+%
+/makeLandscape {
+   90 rotate
+   0 PageHeight neg translate
+} def
+%
+% x y joint_gray
+%
+/joint_gray {
+   gsave
+   translate
+   0.5 setgray
+   -4 -4 moveto -4 4 lineto 4 4 lineto 4 -4 lineto closepath fill
+   grestore
+} def
+%
+% () t/f x y hgnode
+%
+/hgnode {
+  gsave
+  translate
+  {[3 3] 0 setdash} if
+  dup 5 -5 moveto show newpath
+  0 -10 moveto stringwidth pop 10 add 0 rlineto 0 20 rlineto 0 10 lineto closepath stroke
+  grestore
+} def
+
+/Author (Pawel,,,) def
+/Site (Earth) def
+/Date (June 13, 2019) def
+/CircuitName (z80.v) def
+/isepsf false def
+/NumPages ( of 1) def
+/GateVersion (TKGate 2.0.0) def
+/IsLandscape true def
+/PageWidth 2383.90 def
+/PageHeight 1683.75 def
+/LMargin 25 def
+/RMargin 25 def
+/TMargin 25 def
+/BMargin 25 def
+/LBlock 60 def
+/Courier-Latin1 /Courier findfont defLatin1
+/Courier-Bold-Latin1 /Courier-Bold findfont defLatin1
+/Courier-Italic-Latin1 /Courier-Italic findfont defLatin1
+/Courier-BoldItalic-Latin1 /Courier-BoldItalic findfont defLatin1
+/Helvetica-Latin1 /Helvetica findfont defLatin1
+/Helvetica-Bold-Latin1 /Helvetica-Bold findfont defLatin1
+/Helvetica-Oblique-Latin1 /Helvetica-Oblique findfont defLatin1
+/Helvetica-BoldOblique-Latin1 /Helvetica-BoldOblique findfont defLatin1
+/Times-Roman-Latin1 /Times-Roman findfont defLatin1
+/Times-Bold-Latin1 /Times-Bold findfont defLatin1
+/Times-Italic-Latin1 /Times-Italic findfont defLatin1
+/Times-BoldItalic-Latin1 /Times-BoldItalic findfont defLatin1
+/Symbol-Latin1 /Symbol findfont defLatin1
+/Symbol-Latin1 /Symbol findfont defLatin1
+/Symbol-Latin1 /Symbol findfont defLatin1
+/Symbol-Latin1 /Symbol findfont defLatin1
+/cfont { /Courier-Latin1 findfont exch scalefont setfont } bind def
+/rfont { /Helvetica-Latin1 findfont exch scalefont setfont } bind def
+/bfont { /Helvetica-Bold-Latin1 findfont exch scalefont setfont } bind def
+/ifont { /Helvetica-Oblique-Latin1 findfont exch scalefont setfont } bind def
+/bifont { /Helvetica-BoldOblique-Latin1 findfont exch scalefont setfont } bind def
+/syfont { /Symbol findfont exch scalefont setfont } bind def
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Hevetica
+%%IncludeResource: font Hevetica-Oblique
+%%IncludeResource: font Hevetica-Bold
+%%IncludeResource: font Hevetica-BoldOblique
+%%IncludeResource: font Symbol
+%%BeginFeature: *DuplexMode false
+statusdict /setduplexmode known {
+  statusdict begin
+    false setduplexmode
+  end
+} if
+%%EndFeature
+%%EndSetup
+
+
+%%Page: 1 1
+(1 of 1) (0ns-6500ns) BP_T
+5 1541 2323.898600 1541 gline
+10 bfont
+(AB_to_PC) 5 1547 prshow
+10 rfont
+99 1541 2225 22 BT
+100 1552 112.703 1552 line
+112.703 1558 112.703 1546 line
+112.703 1546 113.973 1546 line
+112.703 1558 113.973 1558 line
+113.973 1558 113.973 1546 line
+113.973 1546 2323 1546 line
+ET
+5 1519 2323.898600 1519 gline
+10 bfont
+(ADD_A_n) 5 1525 prshow
+10 rfont
+99 1519 2225 22 BT
+100 1530 107.622 1530 line
+107.622 1536 107.622 1524 line
+107.622 1524 117.784 1524 line
+107.622 1536 117.784 1536 line
+117.784 1536 117.784 1524 line
+117.784 1524 1803.45 1524 line
+1803.45 1536 1803.45 1524 line
+1803.45 1536 2323 1536 line
+ET
+5 1497 2323.898600 1497 gline
+10 bfont
+(ADD_DB_to_DB) 5 1503 prshow
+10 rfont
+99 1497 2225 22 BT
+100 1508 112.703 1508 line
+112.703 1514 112.703 1502 line
+112.703 1502 113.973 1502 line
+112.703 1514 113.973 1514 line
+113.973 1514 113.973 1502 line
+113.973 1502 1922.86 1502 line
+1922.86 1514 1922.86 1502 line
+1922.86 1514 1986.37 1514 line
+1986.37 1514 1986.37 1502 line
+1986.37 1502 2240.43 1502 line
+2240.43 1514 2240.43 1502 line
+2240.43 1514 2303.95 1514 line
+2303.95 1514 2303.95 1502 line
+2303.95 1502 2323 1502 line
+ET
+5 1475 2323.898600 1475 gline
+10 bfont
+(AND_DB_to_DB) 5 1481 prshow
+10 rfont
+99 1475 2225 22 BT
+100 1486 112.703 1486 line
+112.703 1492 112.703 1480 line
+112.703 1480 113.973 1480 line
+112.703 1492 113.973 1492 line
+113.973 1492 113.973 1480 line
+113.973 1480 1605.29 1480 line
+1605.29 1492 1605.29 1480 line
+1605.29 1492 1668.8 1492 line
+1668.8 1492 1668.8 1480 line
+1668.8 1480 2323 1480 line
+ET
+5 1453 2323.898600 1453 gline
+10 bfont
+(AND_n) 5 1459 prshow
+10 rfont
+99 1453 2225 22 BT
+100 1464 107.622 1464 line
+107.622 1470 107.622 1458 line
+107.622 1458 117.784 1458 line
+107.622 1470 117.784 1470 line
+117.784 1470 117.784 1458 line
+117.784 1458 1485.88 1458 line
+1485.88 1470 1485.88 1458 line
+1485.88 1470 1803.45 1470 line
+1803.45 1470 1803.45 1458 line
+1803.45 1458 2323 1458 line
+ET
+5 1431 2323.898600 1431 gline
+10 bfont
+(CLK) 5 1437 prshow
+10 rfont
+99 1431 2225 22 BT
+100 1436 131.757 1436 line
+131.757 1448 131.757 1436 line
+131.757 1448 163.514 1448 line
+163.514 1448 163.514 1436 line
+163.514 1436 195.271 1436 line
+195.271 1448 195.271 1436 line
+195.271 1448 227.029 1448 line
+227.029 1448 227.029 1436 line
+227.029 1436 258.786 1436 line
+258.786 1448 258.786 1436 line
+258.786 1448 290.543 1448 line
+290.543 1448 290.543 1436 line
+290.543 1436 322.3 1436 line
+322.3 1448 322.3 1436 line
+322.3 1448 354.057 1448 line
+354.057 1448 354.057 1436 line
+354.057 1436 385.814 1436 line
+385.814 1448 385.814 1436 line
+385.814 1448 417.571 1448 line
+417.571 1448 417.571 1436 line
+417.571 1436 449.329 1436 line
+449.329 1448 449.329 1436 line
+449.329 1448 481.086 1448 line
+481.086 1448 481.086 1436 line
+481.086 1436 512.843 1436 line
+512.843 1448 512.843 1436 line
+512.843 1448 544.6 1448 line
+544.6 1448 544.6 1436 line
+544.6 1436 576.357 1436 line
+576.357 1448 576.357 1436 line
+576.357 1448 608.114 1448 line
+608.114 1448 608.114 1436 line
+608.114 1436 639.871 1436 line
+639.871 1448 639.871 1436 line
+639.871 1448 671.629 1448 line
+671.629 1448 671.629 1436 line
+671.629 1436 703.386 1436 line
+703.386 1448 703.386 1436 line
+703.386 1448 735.143 1448 line
+735.143 1448 735.143 1436 line
+735.143 1436 766.9 1436 line
+766.9 1448 766.9 1436 line
+766.9 1448 798.657 1448 line
+798.657 1448 798.657 1436 line
+798.657 1436 830.414 1436 line
+830.414 1448 830.414 1436 line
+830.414 1448 862.171 1448 line
+862.171 1448 862.171 1436 line
+862.171 1436 893.929 1436 line
+893.929 1448 893.929 1436 line
+893.929 1448 925.686 1448 line
+925.686 1448 925.686 1436 line
+925.686 1436 957.443 1436 line
+957.443 1448 957.443 1436 line
+957.443 1448 989.2 1448 line
+989.2 1448 989.2 1436 line
+989.2 1436 1020.96 1436 line
+1020.96 1448 1020.96 1436 line
+1020.96 1448 1052.71 1448 line
+1052.71 1448 1052.71 1436 line
+1052.71 1436 1084.47 1436 line
+1084.47 1448 1084.47 1436 line
+1084.47 1448 1116.23 1448 line
+1116.23 1448 1116.23 1436 line
+1116.23 1436 1147.99 1436 line
+1147.99 1448 1147.99 1436 line
+1147.99 1448 1179.74 1448 line
+1179.74 1448 1179.74 1436 line
+1179.74 1436 1211.5 1436 line
+1211.5 1448 1211.5 1436 line
+1211.5 1448 1243.26 1448 line
+1243.26 1448 1243.26 1436 line
+1243.26 1436 1275.01 1436 line
+1275.01 1448 1275.01 1436 line
+1275.01 1448 1306.77 1448 line
+1306.77 1448 1306.77 1436 line
+1306.77 1436 1338.53 1436 line
+1338.53 1448 1338.53 1436 line
+1338.53 1448 1370.29 1448 line
+1370.29 1448 1370.29 1436 line
+1370.29 1436 1402.04 1436 line
+1402.04 1448 1402.04 1436 line
+1402.04 1448 1433.8 1448 line
+1433.8 1448 1433.8 1436 line
+1433.8 1436 1465.56 1436 line
+1465.56 1448 1465.56 1436 line
+1465.56 1448 1497.31 1448 line
+1497.31 1448 1497.31 1436 line
+1497.31 1436 1529.07 1436 line
+1529.07 1448 1529.07 1436 line
+1529.07 1448 1560.83 1448 line
+1560.83 1448 1560.83 1436 line
+1560.83 1436 1592.59 1436 line
+1592.59 1448 1592.59 1436 line
+1592.59 1448 1624.34 1448 line
+1624.34 1448 1624.34 1436 line
+1624.34 1436 1656.1 1436 line
+1656.1 1448 1656.1 1436 line
+1656.1 1448 1687.86 1448 line
+1687.86 1448 1687.86 1436 line
+1687.86 1436 1719.61 1436 line
+1719.61 1448 1719.61 1436 line
+1719.61 1448 1751.37 1448 line
+1751.37 1448 1751.37 1436 line
+1751.37 1436 1783.13 1436 line
+1783.13 1448 1783.13 1436 line
+1783.13 1448 1814.89 1448 line
+1814.89 1448 1814.89 1436 line
+1814.89 1436 1846.64 1436 line
+1846.64 1448 1846.64 1436 line
+1846.64 1448 1878.4 1448 line
+1878.4 1448 1878.4 1436 line
+1878.4 1436 1910.16 1436 line
+1910.16 1448 1910.16 1436 line
+1910.16 1448 1941.91 1448 line
+1941.91 1448 1941.91 1436 line
+1941.91 1436 1973.67 1436 line
+1973.67 1448 1973.67 1436 line
+1973.67 1448 2005.43 1448 line
+2005.43 1448 2005.43 1436 line
+2005.43 1436 2037.19 1436 line
+2037.19 1448 2037.19 1436 line
+2037.19 1448 2068.94 1448 line
+2068.94 1448 2068.94 1436 line
+2068.94 1436 2100.7 1436 line
+2100.7 1448 2100.7 1436 line
+2100.7 1448 2132.46 1448 line
+2132.46 1448 2132.46 1436 line
+2132.46 1436 2164.21 1436 line
+2164.21 1448 2164.21 1436 line
+2164.21 1448 2195.97 1448 line
+2195.97 1448 2195.97 1436 line
+2195.97 1436 2227.73 1436 line
+2227.73 1448 2227.73 1436 line
+2227.73 1448 2259.49 1448 line
+2259.49 1448 2259.49 1436 line
+2259.49 1436 2291.24 1436 line
+2291.24 1448 2291.24 1436 line
+2291.24 1448 2323 1448 line
+2323 1448 2323 1436 line
+2323 1436 2323 1436 line
+ET
+5 1409 2323.898600 1409 gline
+10 bfont
+(DB_to_A) 5 1415 prshow
+10 rfont
+99 1409 2225 22 BT
+100 1420 112.703 1420 line
+112.703 1426 112.703 1414 line
+112.703 1414 113.973 1414 line
+112.703 1426 113.973 1426 line
+113.973 1426 113.973 1414 line
+113.973 1414 1668.8 1414 line
+1668.8 1426 1668.8 1414 line
+1668.8 1426 1732.32 1426 line
+1732.32 1426 1732.32 1414 line
+1732.32 1414 1986.37 1414 line
+1986.37 1426 1986.37 1414 line
+1986.37 1426 2049.89 1426 line
+2049.89 1426 2049.89 1414 line
+2049.89 1414 2303.95 1414 line
+2303.95 1426 2303.95 1414 line
+2303.95 1426 2323 1426 line
+ET
+5 1387 2323.898600 1387 gline
+10 bfont
+(DB_to_r) 5 1393 prshow
+10 rfont
+99 1387 2225 22 BT
+100 1398 112.703 1398 line
+112.703 1404 112.703 1392 line
+112.703 1392 113.973 1392 line
+112.703 1404 113.973 1404 line
+113.973 1404 113.973 1392 line
+113.973 1392 335.003 1392 line
+335.003 1404 335.003 1392 line
+335.003 1404 398.517 1404 line
+398.517 1404 398.517 1392 line
+398.517 1392 589.06 1392 line
+589.06 1404 589.06 1392 line
+589.06 1404 652.574 1404 line
+652.574 1404 652.574 1392 line
+652.574 1392 843.117 1392 line
+843.117 1404 843.117 1392 line
+843.117 1404 906.631 1404 line
+906.631 1404 906.631 1392 line
+906.631 1392 1097.17 1392 line
+1097.17 1404 1097.17 1392 line
+1097.17 1404 1160.69 1404 line
+1160.69 1404 1160.69 1392 line
+1160.69 1392 1351.23 1392 line
+1351.23 1404 1351.23 1392 line
+1351.23 1404 1414.75 1404 line
+1414.75 1404 1414.75 1392 line
+1414.75 1392 2323 1392 line
+ET
+5 1365 2323.898600 1365 gline
+10 bfont
+(identify_OP) 5 1371 prshow
+10 rfont
+99 1365 2225 22 BT
+100 1376 112.703 1376 line
+112.703 1382 112.703 1370 line
+112.703 1370 113.973 1370 line
+112.703 1382 113.973 1382 line
+113.973 1382 113.973 1370 line
+113.973 1370 207.974 1370 line
+207.974 1382 207.974 1370 line
+207.974 1382 271.489 1382 line
+271.489 1382 271.489 1370 line
+271.489 1370 462.031 1370 line
+462.031 1382 462.031 1370 line
+462.031 1382 525.546 1382 line
+525.546 1382 525.546 1370 line
+525.546 1370 716.089 1370 line
+716.089 1382 716.089 1370 line
+716.089 1382 779.603 1382 line
+779.603 1382 779.603 1370 line
+779.603 1370 970.146 1370 line
+970.146 1382 970.146 1370 line
+970.146 1382 1033.66 1382 line
+1033.66 1382 1033.66 1370 line
+1033.66 1370 1224.2 1370 line
+1224.2 1382 1224.2 1370 line
+1224.2 1382 1287.72 1382 line
+1287.72 1382 1287.72 1370 line
+1287.72 1370 1478.26 1370 line
+1478.26 1382 1478.26 1370 line
+1478.26 1382 1541.77 1382 line
+1541.77 1382 1541.77 1370 line
+1541.77 1370 1795.83 1370 line
+1795.83 1382 1795.83 1370 line
+1795.83 1382 1859.35 1382 line
+1859.35 1382 1859.35 1370 line
+1859.35 1370 2113.4 1370 line
+2113.4 1382 2113.4 1370 line
+2113.4 1382 2176.92 1382 line
+2176.92 1382 2176.92 1370 line
+2176.92 1370 2323 1370 line
+ET
+5 1343 2323.898600 1343 gline
+10 bfont
+(JP_nn) 5 1349 prshow
+10 rfont
+99 1343 2225 22 BT
+100 1354 107.622 1354 line
+107.622 1360 107.622 1348 line
+107.622 1348 117.784 1348 line
+107.622 1360 117.784 1360 line
+117.784 1360 117.784 1348 line
+117.784 1348 2323 1348 line
+ET
+5 1321 2323.898600 1321 gline
+10 bfont
+(LD_r_n) 5 1327 prshow
+10 rfont
+99 1321 2225 22 BT
+100 1332 110.162 1332 line
+110.162 1338 110.162 1326 line
+110.162 1326 127.946 1326 line
+110.162 1338 127.946 1338 line
+127.946 1338 127.946 1326 line
+127.946 1326 221.947 1326 line
+221.947 1338 221.947 1326 line
+221.947 1338 476.005 1338 line
+476.005 1338 476.005 1326 line
+476.005 1326 479.815 1326 line
+479.815 1338 479.815 1326 line
+479.815 1338 1238.18 1338 line
+1238.18 1338 1238.18 1326 line
+1238.18 1326 2323 1326 line
+ET
+5 1299 2323.898600 1299 gline
+10 bfont
+(LD_r_r) 5 1305 prshow
+10 rfont
+99 1299 2225 22 BT
+100 1310 106.351 1310 line
+106.351 1316 106.351 1304 line
+106.351 1304 127.946 1304 line
+106.351 1316 127.946 1316 line
+127.946 1316 127.946 1304 line
+127.946 1304 1234.37 1304 line
+1234.37 1316 1234.37 1304 line
+1234.37 1316 1488.42 1316 line
+1488.42 1316 1488.42 1304 line
+1488.42 1304 2323 1304 line
+ET
+5 1277 2323.898600 1277 gline
+10 bfont
+(n_to_DB) 5 1283 prshow
+10 rfont
+99 1277 2225 22 BT
+100 1288 112.703 1288 line
+112.703 1294 112.703 1282 line
+112.703 1282 113.973 1282 line
+112.703 1294 113.973 1294 line
+113.973 1294 113.973 1282 line
+113.973 1282 271.489 1282 line
+271.489 1294 271.489 1282 line
+271.489 1294 335.003 1294 line
+335.003 1294 335.003 1282 line
+335.003 1282 525.546 1282 line
+525.546 1294 525.546 1282 line
+525.546 1294 589.06 1294 line
+589.06 1294 589.06 1282 line
+589.06 1282 779.603 1282 line
+779.603 1294 779.603 1282 line
+779.603 1294 843.117 1294 line
+843.117 1294 843.117 1282 line
+843.117 1282 1033.66 1282 line
+1033.66 1294 1033.66 1282 line
+1033.66 1294 1097.17 1294 line
+1097.17 1294 1097.17 1282 line
+1097.17 1282 1541.77 1282 line
+1541.77 1294 1541.77 1282 line
+1541.77 1294 1605.29 1294 line
+1605.29 1294 1605.29 1282 line
+1605.29 1282 1859.35 1282 line
+1859.35 1294 1859.35 1282 line
+1859.35 1294 1922.86 1294 line
+1922.86 1294 1922.86 1282 line
+1922.86 1282 2176.92 1282 line
+2176.92 1294 2176.92 1282 line
+2176.92 1294 2240.43 1294 line
+2240.43 1294 2240.43 1282 line
+2240.43 1282 2323 1282 line
+ET
+5 1255 2323.898600 1255 gline
+10 bfont
+(r_to_DB) 5 1261 prshow
+10 rfont
+99 1255 2225 22 BT
+100 1266 112.703 1266 line
+112.703 1272 112.703 1260 line
+112.703 1260 113.973 1260 line
+112.703 1272 113.973 1272 line
+113.973 1272 113.973 1260 line
+113.973 1260 1287.72 1260 line
+1287.72 1272 1287.72 1260 line
+1287.72 1272 1351.23 1272 line
+1351.23 1272 1351.23 1260 line
+1351.23 1260 2323 1260 line
+ET
+5 1233 2323.898600 1233 gline
+10 bfont
+(read_address) 5 1239 prshow
+10 rfont
+99 1233 2225 22 BT
+100 1244 112.703 1244 line
+112.703 1250 112.703 1238 line
+112.703 1238 113.973 1238 line
+112.703 1250 113.973 1250 line
+113.973 1250 113.973 1238 line
+113.973 1238 2323 1238 line
+ET
+5 1211 2323.898600 1211 gline
+10 bfont
+(read_mem) 5 1217 prshow
+10 rfont
+99 1211 2225 22 BT
+100 1222 103.811 1222 line
+103.811 1228 103.811 1216 line
+103.811 1216 117.784 1216 line
+103.811 1228 117.784 1228 line
+117.784 1228 117.784 1216 line
+117.784 1216 211.785 1216 line
+211.785 1228 211.785 1216 line
+211.785 1228 275.299 1228 line
+275.299 1228 275.299 1216 line
+275.299 1216 338.814 1216 line
+338.814 1228 338.814 1216 line
+338.814 1228 402.328 1228 line
+402.328 1228 402.328 1216 line
+402.328 1216 465.842 1216 line
+465.842 1228 465.842 1216 line
+465.842 1228 529.357 1228 line
+529.357 1228 529.357 1216 line
+529.357 1216 592.871 1216 line
+592.871 1228 592.871 1216 line
+592.871 1228 656.385 1228 line
+656.385 1228 656.385 1216 line
+656.385 1216 719.899 1216 line
+719.899 1228 719.899 1216 line
+719.899 1228 783.414 1228 line
+783.414 1228 783.414 1216 line
+783.414 1216 846.928 1216 line
+846.928 1228 846.928 1216 line
+846.928 1228 910.442 1228 line
+910.442 1228 910.442 1216 line
+910.442 1216 973.957 1216 line
+973.957 1228 973.957 1216 line
+973.957 1228 1037.47 1228 line
+1037.47 1228 1037.47 1216 line
+1037.47 1216 1100.99 1216 line
+1100.99 1228 1100.99 1216 line
+1100.99 1228 1164.5 1228 line
+1164.5 1228 1164.5 1216 line
+1164.5 1216 1228.01 1216 line
+1228.01 1228 1228.01 1216 line
+1228.01 1228 1418.56 1228 line
+1418.56 1228 1418.56 1216 line
+1418.56 1216 1482.07 1216 line
+1482.07 1228 1482.07 1216 line
+1482.07 1228 1545.59 1228 line
+1545.59 1228 1545.59 1216 line
+1545.59 1216 1609.1 1216 line
+1609.1 1228 1609.1 1216 line
+1609.1 1228 1736.13 1228 line
+1736.13 1228 1736.13 1216 line
+1736.13 1216 1799.64 1216 line
+1799.64 1228 1799.64 1216 line
+1799.64 1228 1863.16 1228 line
+1863.16 1228 1863.16 1216 line
+1863.16 1216 1926.67 1216 line
+1926.67 1228 1926.67 1216 line
+1926.67 1228 2053.7 1228 line
+2053.7 1228 2053.7 1216 line
+2053.7 1216 2117.21 1216 line
+2117.21 1228 2117.21 1216 line
+2117.21 1228 2180.73 1228 line
+2180.73 1228 2180.73 1216 line
+2180.73 1216 2244.24 1216 line
+2244.24 1228 2244.24 1216 line
+2244.24 1228 2323 1228 line
+ET
+5 1189 2323.898600 1189 gline
+10 bfont
+(read_OP) 5 1195 prshow
+10 rfont
+99 1189 2225 22 BT
+100 1200 112.703 1200 line
+112.703 1206 112.703 1194 line
+112.703 1194 113.973 1194 line
+112.703 1206 113.973 1206 line
+113.973 1206 113.973 1194 line
+113.973 1206 207.974 1206 line
+207.974 1206 207.974 1194 line
+207.974 1194 398.517 1194 line
+398.517 1206 398.517 1194 line
+398.517 1206 462.031 1206 line
+462.031 1206 462.031 1194 line
+462.031 1194 652.574 1194 line
+652.574 1206 652.574 1194 line
+652.574 1206 716.089 1206 line
+716.089 1206 716.089 1194 line
+716.089 1194 906.631 1194 line
+906.631 1206 906.631 1194 line
+906.631 1206 970.146 1206 line
+970.146 1206 970.146 1194 line
+970.146 1194 1160.69 1194 line
+1160.69 1206 1160.69 1194 line
+1160.69 1206 1224.2 1206 line
+1224.2 1206 1224.2 1194 line
+1224.2 1194 1414.75 1194 line
+1414.75 1206 1414.75 1194 line
+1414.75 1206 1478.26 1206 line
+1478.26 1206 1478.26 1194 line
+1478.26 1194 1732.32 1194 line
+1732.32 1206 1732.32 1194 line
+1732.32 1206 1795.83 1206 line
+1795.83 1206 1795.83 1194 line
+1795.83 1194 2049.89 1194 line
+2049.89 1206 2049.89 1194 line
+2049.89 1206 2113.4 1206 line
+2113.4 1206 2113.4 1194 line
+2113.4 1194 2323 1194 line
+ET
+0 1164 2333 399 bold_box
+10 bfont
+100 1189 100 1184 line
+(0ns) 100 1171 rCT
+417.571 1189 417.571 1184 line
+(500ns) 417.571 1171 rCT
+735.143 1189 735.143 1184 line
+(1000ns) 735.143 1171 rCT
+1052.71 1189 1052.71 1184 line
+(1500ns) 1052.71 1171 rCT
+1370.29 1189 1370.29 1184 line
+(2000ns) 1370.29 1171 rCT
+1687.86 1189 1687.86 1184 line
+(2500ns) 1687.86 1171 rCT
+2005.43 1189 2005.43 1184 line
+(3000ns) 2005.43 1171 rCT
+2323 1189 2323 1184 line
+5 1137 2323.898600 1137 gline
+10 bfont
+(AB_to_PC) 5 1143 prshow
+10 rfont
+99 1137 2225 22 BT
+100 1142 970.146 1142 line
+970.146 1154 970.146 1142 line
+970.146 1154 1033.66 1154 line
+1033.66 1154 1033.66 1142 line
+1033.66 1142 1795.83 1142 line
+1795.83 1154 1795.83 1142 line
+1795.83 1142 1859.35 1142 line
+1795.83 1154 1859.35 1154 line
+1859.35 1154 1859.35 1142 line
+1859.35 1142 1859.98 1142 line
+ET
+5 1115 2323.898600 1115 gline
+10 bfont
+(ADD_A_n) 5 1121 prshow
+10 rfont
+99 1115 2225 22 BT
+100 1132 533.167 1132 line
+533.167 1132 533.167 1120 line
+533.167 1120 1676.42 1120 line
+1676.42 1132 1676.42 1120 line
+1676.42 1120 1859.98 1120 line
+1676.42 1132 1859.98 1132 line
+ET
+5 1093 2323.898600 1093 gline
+10 bfont
+(ADD_DB_to_DB) 5 1099 prshow
+10 rfont
+99 1093 2225 22 BT
+100 1098 335.003 1098 line
+335.003 1110 335.003 1098 line
+335.003 1110 398.517 1110 line
+398.517 1110 398.517 1098 line
+398.517 1098 1795.83 1098 line
+1795.83 1110 1795.83 1098 line
+1795.83 1098 1859.35 1098 line
+1795.83 1110 1859.35 1110 line
+1859.35 1110 1859.35 1098 line
+1859.35 1098 1859.98 1098 line
+ET
+5 1071 2323.898600 1071 gline
+10 bfont
+(AND_DB_to_DB) 5 1077 prshow
+10 rfont
+99 1071 2225 22 BT
+100 1076 652.574 1076 line
+652.574 1088 652.574 1076 line
+652.574 1088 716.089 1088 line
+716.089 1088 716.089 1076 line
+716.089 1076 1478.26 1076 line
+1478.26 1088 1478.26 1076 line
+1478.26 1088 1541.77 1088 line
+1541.77 1088 1541.77 1076 line
+1541.77 1076 1795.83 1076 line
+1795.83 1088 1795.83 1076 line
+1795.83 1076 1859.35 1076 line
+1795.83 1088 1859.35 1088 line
+1859.35 1088 1859.35 1076 line
+1859.35 1076 1859.98 1076 line
+ET
+5 1049 2323.898600 1049 gline
+10 bfont
+(AND_n) 5 1055 prshow
+10 rfont
+99 1049 2225 22 BT
+100 1054 533.167 1054 line
+533.167 1066 533.167 1054 line
+533.167 1066 846.928 1066 line
+846.928 1066 846.928 1054 line
+846.928 1054 1358.85 1054 line
+1358.85 1066 1358.85 1054 line
+1358.85 1066 1672.61 1066 line
+1672.61 1066 1672.61 1054 line
+1672.61 1054 1859.98 1054 line
+1672.61 1066 1859.98 1066 line
+ET
+5 1027 2323.898600 1027 gline
+10 bfont
+(CLK) 5 1033 prshow
+10 rfont
+99 1027 2225 22 BT
+100 1044 100 1044 line
+100 1044 100 1032 line
+100 1032 131.757 1032 line
+131.757 1044 131.757 1032 line
+131.757 1044 163.514 1044 line
+163.514 1044 163.514 1032 line
+163.514 1032 195.271 1032 line
+195.271 1044 195.271 1032 line
+195.271 1044 227.029 1044 line
+227.029 1044 227.029 1032 line
+227.029 1032 258.786 1032 line
+258.786 1044 258.786 1032 line
+258.786 1044 290.543 1044 line
+290.543 1044 290.543 1032 line
+290.543 1032 322.3 1032 line
+322.3 1044 322.3 1032 line
+322.3 1044 354.057 1044 line
+354.057 1044 354.057 1032 line
+354.057 1032 385.814 1032 line
+385.814 1044 385.814 1032 line
+385.814 1044 417.571 1044 line
+417.571 1044 417.571 1032 line
+417.571 1032 449.329 1032 line
+449.329 1044 449.329 1032 line
+449.329 1044 481.086 1044 line
+481.086 1044 481.086 1032 line
+481.086 1032 512.843 1032 line
+512.843 1044 512.843 1032 line
+512.843 1044 544.6 1044 line
+544.6 1044 544.6 1032 line
+544.6 1032 576.357 1032 line
+576.357 1044 576.357 1032 line
+576.357 1044 608.114 1044 line
+608.114 1044 608.114 1032 line
+608.114 1032 639.871 1032 line
+639.871 1044 639.871 1032 line
+639.871 1044 671.629 1044 line
+671.629 1044 671.629 1032 line
+671.629 1032 703.386 1032 line
+703.386 1044 703.386 1032 line
+703.386 1044 735.143 1044 line
+735.143 1044 735.143 1032 line
+735.143 1032 766.9 1032 line
+766.9 1044 766.9 1032 line
+766.9 1044 798.657 1044 line
+798.657 1044 798.657 1032 line
+798.657 1032 830.414 1032 line
+830.414 1044 830.414 1032 line
+830.414 1044 862.171 1044 line
+862.171 1044 862.171 1032 line
+862.171 1032 893.929 1032 line
+893.929 1044 893.929 1032 line
+893.929 1044 925.686 1044 line
+925.686 1044 925.686 1032 line
+925.686 1032 957.443 1032 line
+957.443 1044 957.443 1032 line
+957.443 1044 989.2 1044 line
+989.2 1044 989.2 1032 line
+989.2 1032 1020.96 1032 line
+1020.96 1044 1020.96 1032 line
+1020.96 1044 1052.71 1044 line
+1052.71 1044 1052.71 1032 line
+1052.71 1032 1084.47 1032 line
+1084.47 1044 1084.47 1032 line
+1084.47 1044 1116.23 1044 line
+1116.23 1044 1116.23 1032 line
+1116.23 1032 1147.99 1032 line
+1147.99 1044 1147.99 1032 line
+1147.99 1044 1179.74 1044 line
+1179.74 1044 1179.74 1032 line
+1179.74 1032 1211.5 1032 line
+1211.5 1044 1211.5 1032 line
+1211.5 1044 1243.26 1044 line
+1243.26 1044 1243.26 1032 line
+1243.26 1032 1275.01 1032 line
+1275.01 1044 1275.01 1032 line
+1275.01 1044 1306.77 1044 line
+1306.77 1044 1306.77 1032 line
+1306.77 1032 1338.53 1032 line
+1338.53 1044 1338.53 1032 line
+1338.53 1044 1370.29 1044 line
+1370.29 1044 1370.29 1032 line
+1370.29 1032 1402.04 1032 line
+1402.04 1044 1402.04 1032 line
+1402.04 1044 1433.8 1044 line
+1433.8 1044 1433.8 1032 line
+1433.8 1032 1465.56 1032 line
+1465.56 1044 1465.56 1032 line
+1465.56 1044 1497.31 1044 line
+1497.31 1044 1497.31 1032 line
+1497.31 1032 1529.07 1032 line
+1529.07 1044 1529.07 1032 line
+1529.07 1044 1560.83 1044 line
+1560.83 1044 1560.83 1032 line
+1560.83 1032 1592.59 1032 line
+1592.59 1044 1592.59 1032 line
+1592.59 1044 1624.34 1044 line
+1624.34 1044 1624.34 1032 line
+1624.34 1032 1656.1 1032 line
+1656.1 1044 1656.1 1032 line
+1656.1 1044 1687.86 1044 line
+1687.86 1044 1687.86 1032 line
+1687.86 1032 1719.61 1032 line
+1719.61 1044 1719.61 1032 line
+1719.61 1044 1751.37 1044 line
+1751.37 1044 1751.37 1032 line
+1751.37 1032 1783.13 1032 line
+1783.13 1044 1783.13 1032 line
+1783.13 1044 1814.89 1044 line
+1814.89 1044 1814.89 1032 line
+1814.89 1032 1846.64 1032 line
+1846.64 1044 1846.64 1032 line
+1846.64 1044 1859.98 1044 line
+ET
+5 1005 2323.898600 1005 gline
+10 bfont
+(DB_to_A) 5 1011 prshow
+10 rfont
+99 1005 2225 22 BT
+100 1022 144.46 1022 line
+144.46 1022 144.46 1010 line
+144.46 1010 398.517 1010 line
+398.517 1022 398.517 1010 line
+398.517 1022 462.031 1022 line
+462.031 1022 462.031 1010 line
+462.031 1010 716.089 1010 line
+716.089 1022 716.089 1010 line
+716.089 1022 779.603 1022 line
+779.603 1022 779.603 1010 line
+779.603 1010 1541.77 1010 line
+1541.77 1022 1541.77 1010 line
+1541.77 1022 1605.29 1022 line
+1605.29 1022 1605.29 1010 line
+1605.29 1010 1859.35 1010 line
+1859.35 1022 1859.35 1010 line
+1859.35 1010 1859.98 1010 line
+1859.35 1022 1859.98 1022 line
+ET
+5 983 2323.898600 983 gline
+10 bfont
+(DB_to_r) 5 989 prshow
+10 rfont
+99 983 2225 22 BT
+100 988 1224.2 988 line
+1224.2 1000 1224.2 988 line
+1224.2 1000 1287.72 1000 line
+1287.72 1000 1287.72 988 line
+1287.72 988 1795.83 988 line
+1795.83 1000 1795.83 988 line
+1795.83 988 1859.35 988 line
+1795.83 1000 1859.35 1000 line
+1859.35 1000 1859.35 988 line
+1859.35 988 1859.98 988 line
+ET
+5 961 2323.898600 961 gline
+10 bfont
+(identify_OP) 5 967 prshow
+10 rfont
+99 961 2225 22 BT
+100 966 207.974 966 line
+207.974 978 207.974 966 line
+207.974 978 271.489 978 line
+271.489 978 271.489 966 line
+271.489 966 525.546 966 line
+525.546 978 525.546 966 line
+525.546 978 589.06 978 line
+589.06 978 589.06 966 line
+589.06 966 843.117 966 line
+843.117 978 843.117 966 line
+843.117 978 906.631 978 line
+906.631 978 906.631 966 line
+906.631 966 970.146 966 line
+970.146 978 970.146 966 line
+970.146 978 1033.66 978 line
+1033.66 978 1033.66 966 line
+1033.66 966 1097.17 966 line
+1097.17 978 1097.17 966 line
+1097.17 978 1160.69 978 line
+1160.69 978 1160.69 966 line
+1160.69 966 1351.23 966 line
+1351.23 978 1351.23 966 line
+1351.23 978 1414.75 978 line
+1414.75 978 1414.75 966 line
+1414.75 966 1668.8 966 line
+1668.8 978 1668.8 966 line
+1668.8 978 1732.32 978 line
+1732.32 978 1732.32 966 line
+1732.32 966 1795.83 966 line
+1795.83 978 1795.83 966 line
+1795.83 966 1859.35 966 line
+1795.83 978 1859.35 978 line
+1859.35 978 1859.35 966 line
+1859.35 966 1859.98 966 line
+ET
+5 939 2323.898600 939 gline
+10 bfont
+(JP_nn) 5 945 prshow
+10 rfont
+99 939 2225 22 BT
+100 944 850.739 944 line
+850.739 956 850.739 944 line
+850.739 956 973.957 956 line
+973.957 956 973.957 944 line
+973.957 944 1676.42 944 line
+1676.42 956 1676.42 944 line
+1676.42 944 1859.98 944 line
+1676.42 956 1859.98 956 line
+ET
+5 917 2323.898600 917 gline
+10 bfont
+(LD_r_n) 5 923 prshow
+10 rfont
+99 917 2225 22 BT
+100 922 1686.59 922 line
+1686.59 934 1686.59 922 line
+1686.59 922 1859.98 922 line
+1686.59 934 1859.98 934 line
+ET
+5 895 2323.898600 895 gline
+10 bfont
+(LD_r_r) 5 901 prshow
+10 rfont
+99 895 2225 22 BT
+100 900 1111.15 900 line
+1111.15 912 1111.15 900 line
+1111.15 912 1365.2 912 line
+1365.2 912 1365.2 900 line
+1365.2 900 1678.97 900 line
+1678.97 912 1678.97 900 line
+1678.97 900 1859.98 900 line
+1678.97 912 1859.98 912 line
+ET
+5 873 2323.898600 873 gline
+10 bfont
+(n_to_DB) 5 879 prshow
+10 rfont
+99 873 2225 22 BT
+100 878 271.489 878 line
+271.489 890 271.489 878 line
+271.489 890 335.003 890 line
+335.003 890 335.003 878 line
+335.003 878 589.06 878 line
+589.06 890 589.06 878 line
+589.06 890 652.574 890 line
+652.574 890 652.574 878 line
+652.574 878 1414.75 878 line
+1414.75 890 1414.75 878 line
+1414.75 890 1478.26 890 line
+1478.26 890 1478.26 878 line
+1478.26 878 1732.32 878 line
+1732.32 890 1732.32 878 line
+1732.32 878 1795.83 878 line
+1732.32 890 1795.83 890 line
+1795.83 890 1795.83 878 line
+1795.83 878 1859.35 878 line
+1859.35 890 1859.35 878 line
+1859.35 878 1859.98 878 line
+1859.35 890 1859.98 890 line
+ET
+5 851 2323.898600 851 gline
+10 bfont
+(r_to_DB) 5 857 prshow
+10 rfont
+99 851 2225 22 BT
+100 856 1160.69 856 line
+1160.69 868 1160.69 856 line
+1160.69 868 1224.2 868 line
+1224.2 868 1224.2 856 line
+1224.2 856 1732.32 856 line
+1732.32 868 1732.32 856 line
+1732.32 856 1795.83 856 line
+1732.32 868 1795.83 868 line
+1795.83 868 1795.83 856 line
+1795.83 856 1859.35 856 line
+1859.35 868 1859.35 856 line
+1859.35 856 1859.98 856 line
+1859.35 868 1859.98 868 line
+ET
+5 829 2323.898600 829 gline
+10 bfont
+(read_address) 5 835 prshow
+10 rfont
+99 829 2225 22 BT
+100 834 906.631 834 line
+906.631 846 906.631 834 line
+906.631 846 970.146 846 line
+970.146 846 970.146 834 line
+970.146 834 1732.32 834 line
+1732.32 846 1732.32 834 line
+1732.32 834 1795.83 834 line
+1732.32 846 1795.83 846 line
+1795.83 846 1795.83 834 line
+1795.83 834 1859.35 834 line
+1859.35 846 1859.35 834 line
+1859.35 834 1859.98 834 line
+1859.35 846 1859.98 846 line
+ET
+5 807 2323.898600 807 gline
+10 bfont
+(read_mem) 5 813 prshow
+10 rfont
+99 807 2225 22 BT
+100 824 148.271 824 line
+148.271 824 148.271 812 line
+148.271 812 211.785 812 line
+211.785 824 211.785 812 line
+211.785 824 275.299 824 line
+275.299 824 275.299 812 line
+275.299 812 338.814 812 line
+338.814 824 338.814 812 line
+338.814 824 465.842 824 line
+465.842 824 465.842 812 line
+465.842 812 529.357 812 line
+529.357 824 529.357 812 line
+529.357 824 592.871 824 line
+592.871 824 592.871 812 line
+592.871 812 656.385 812 line
+656.385 824 656.385 812 line
+656.385 824 783.414 824 line
+783.414 824 783.414 812 line
+783.414 812 846.928 812 line
+846.928 824 846.928 812 line
+846.928 824 910.442 824 line
+910.442 824 910.442 812 line
+910.442 812 973.957 812 line
+973.957 824 973.957 812 line
+973.957 824 1037.47 824 line
+1037.47 824 1037.47 812 line
+1037.47 812 1100.99 812 line
+1100.99 824 1100.99 812 line
+1100.99 824 1291.53 824 line
+1291.53 824 1291.53 812 line
+1291.53 812 1355.04 812 line
+1355.04 824 1355.04 812 line
+1355.04 824 1418.56 824 line
+1418.56 824 1418.56 812 line
+1418.56 812 1482.07 812 line
+1482.07 824 1482.07 812 line
+1482.07 824 1609.1 824 line
+1609.1 824 1609.1 812 line
+1609.1 812 1672.61 812 line
+1672.61 824 1672.61 812 line
+1672.61 824 1736.13 824 line
+1736.13 824 1736.13 812 line
+1736.13 812 1799.64 812 line
+1736.13 824 1799.64 824 line
+1799.64 824 1799.64 812 line
+1799.64 824 1859.98 824 line
+ET
+5 785 2323.898600 785 gline
+10 bfont
+(read_OP) 5 791 prshow
+10 rfont
+99 785 2225 22 BT
+100 790 144.46 790 line
+144.46 802 144.46 790 line
+144.46 802 207.974 802 line
+207.974 802 207.974 790 line
+207.974 790 462.031 790 line
+462.031 802 462.031 790 line
+462.031 802 525.546 802 line
+525.546 802 525.546 790 line
+525.546 790 779.603 790 line
+779.603 802 779.603 790 line
+779.603 802 843.117 802 line
+843.117 802 843.117 790 line
+843.117 790 906.631 790 line
+906.631 802 906.631 790 line
+906.631 802 970.146 802 line
+970.146 802 970.146 790 line
+970.146 790 1033.66 790 line
+1033.66 802 1033.66 790 line
+1033.66 802 1097.17 802 line
+1097.17 802 1097.17 790 line
+1097.17 790 1287.72 790 line
+1287.72 802 1287.72 790 line
+1287.72 802 1351.23 802 line
+1351.23 802 1351.23 790 line
+1351.23 790 1605.29 790 line
+1605.29 802 1605.29 790 line
+1605.29 802 1668.8 802 line
+1668.8 802 1668.8 790 line
+1668.8 790 1732.32 790 line
+1732.32 802 1732.32 790 line
+1732.32 790 1795.83 790 line
+1732.32 802 1795.83 802 line
+1795.83 802 1795.83 790 line
+1795.83 790 1859.35 790 line
+1859.35 802 1859.35 790 line
+1859.35 790 1859.98 790 line
+1859.35 802 1859.98 802 line
+ET
+0 760 2333 399 bold_box
+10 bfont
+100 785 100 780 line
+(3500ns) 100 767 rCT
+417.571 785 417.571 780 line
+(4000ns) 417.571 767 rCT
+735.143 785 735.143 780 line
+(4500ns) 735.143 767 rCT
+1052.71 785 1052.71 780 line
+(5000ns) 1052.71 767 rCT
+1370.29 785 1370.29 780 line
+(5500ns) 1370.29 767 rCT
+1687.86 785 1687.86 780 line
+(6000ns) 1687.86 767 rCT
+2005.43 785 2005.43 780 line
+(6500ns) 2005.43 767 rCT
+2323 785 2323 780 line
+EP
+%%Tailer
